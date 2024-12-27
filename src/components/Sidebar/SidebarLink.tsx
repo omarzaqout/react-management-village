@@ -7,7 +7,7 @@ type SidebarProps = {
   to: string;
   isOpen: boolean;
 };
-
+//TEST
 const SidebarLink: React.FC<SidebarProps> = ({ icon, label, to, isOpen }) => {
   return (
     <Link
