@@ -8,7 +8,7 @@ const Sidebar: React.FC = () => {
     <div
       className={`${
         isOpen ? 'w-64' : 'w-20'
-      } bg-gray-800 h-screen p-4 text-white duration-300 flex flex-col justify-between`}
+      } bg-gray-800 h-100vh p-4 text-white duration-300 flex flex-col justify-between`}
     >
       <div>
         <button
