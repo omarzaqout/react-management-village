@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'; // Use Routes instead of Switch
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Sidebar from './components/Sidebar/Sidebar';
 import Dashboard from './pages/Dashboard';
 import VillageManagement from './pages/VillageManagement';
@@ -12,9 +12,8 @@ const App: React.FC = () => {
       <div className="flex">
         <Sidebar />
         <div className="flex-1 bg-gray-100 p-6">
-          <Routes> {/* Use Routes instead of Switch */}
-            {/* Default Route */}
-            <Route path="/" element={<Dashboard />} /> {/* Use element prop */}
+          <Routes> 
+            <Route path="/" element={<Dashboard />} /> 
             <Route path="/village-management" element={<VillageManagement />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/gallery" element={<Gallery />} />
@@ -23,6 +22,8 @@ const App: React.FC = () => {
       </div>
     </Router>
   );
+  
 };
+
 
 export default App;
