@@ -9,9 +9,9 @@ import Gallery from './pages/Gallery';
 const App: React.FC = () => {
   return (
     <Router>
-      <div className="flex">
+      <div className="flex ">
         <Sidebar />
-        <div className="flex-1 bg-gray-100 p-6">
+        <div className="flex-1 bg-gray-900 p-6">
           <Routes> 
             <Route path="/" element={<Dashboard />} /> 
             <Route path="/village-management" element={<VillageManagement />} />
