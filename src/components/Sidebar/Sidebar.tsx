@@ -1,27 +1,43 @@
-import React, { useState } from 'react';
-import SidebarLink from './SidebarLink';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import SidebarLink from "./SidebarLink";
 
 const Sidebar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    navigate("./login");
+  };
 
   return (
     <div
       className={`${
         isOpen ? 'w-64' : 'w-20'
-      } bg-gray-800  p-4 text-white duration-300 flex flex-col justify-between`}
+      } bg-gray-800 h-screen p-4 text-white duration-300 flex flex-col justify-between`}
     >
       <div>
         <button
           className="mb-6 text-xl focus:outline-none"
           onClick={() => setIsOpen(!isOpen)}
         >
-          {isOpen ? '←' : '☰'}
+          {isOpen ? "←" : "☰"}
         </button>
         <div className="flex flex-col space-y-4">
           <SidebarLink icon="🏠" label="Overview" to="/" isOpen={isOpen} />
-          <SidebarLink icon="📋" label="Village Management" to="/village-management" isOpen={isOpen} />
+          <SidebarLink
+            icon="📋"
+            label="Village Management"
+            to="/village-management"
+            isOpen={isOpen}
+          />
           <SidebarLink icon="💬" label="Chat" to="/chat" isOpen={isOpen} />
-          <SidebarLink icon="🖼️" label="Gallery" to="/gallery" isOpen={isOpen} />
+          <SidebarLink
+            icon="🖼️"
+            label="Gallery"
+            to="/gallery"
+            isOpen={isOpen}
+          />
         </div>
       </div>
       <div className="flex items-center space-x-4 p-2 hover:bg-gray-700 rounded-md cursor-pointer">
@@ -31,7 +47,11 @@ const Sidebar: React.FC = () => {
           </div>
           {isOpen && <span className="ml-2">Admin Name</span>}
         </div>
-        {isOpen && <button className="text-red-500">Logout</button>}
+        {isOpen && (
+          <button className="text-red-500" onClick={handleLogout}>
+            Logout
+          </button>
+        )}
       </div>
     </div>
   );

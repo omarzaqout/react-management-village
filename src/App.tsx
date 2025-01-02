@@ -1,17 +1,28 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Sidebar from './components/Sidebar/Sidebar';
-import Dashboard from './pages/Dashboard';
-import VillageManagement from './pages/VillageManagement';
-import Chat from './pages/Chat';
-import Gallery from './pages/Gallery';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
+import Sidebar from "./components/Sidebar/Sidebar";
+import Dashboard from "./pages/Dashboard";
+import VillageManagement from "./pages/VillageManagement";
+import Chat from "./pages/Chat";
+import Gallery from "./pages/Gallery";
+import LoginPage from "./pages/LoginPage";
+import SignUp from "./pages/SignUp";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 
 const App: React.FC = () => {
+  const location = useLocation();
+  const hideSidebarRoutes = ["/login", "/signup"];
+
   return (
     <Router>
       <div className="flex ">
         <Sidebar />
-        <div className="md:flex-1  p-6 h-full">
+        <div className="flex-1 bg-gray-900 p-6">
           <Routes> 
             <Route path="/" element={<Dashboard />} /> 
             <Route path="/village-management" element={<VillageManagement />} />
