@@ -15,6 +15,7 @@ const Chat: React.FC = () => {
   const [selectedAdmin, setSelectedAdmin] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const admins: Admin[] = [
     {
@@ -30,6 +31,10 @@ const Chat: React.FC = () => {
       img: "https://static.vecteezy.com/system/resources/previews/023/004/539/non_2x/a-man-with-black-glasses-avatar-art-free-vector.jpg",
     },
   ];
+
+  const filteredAdmins = admins.filter((admin) =>
+    admin.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const openChat = (adminName: string): void => {
     setSelectedAdmin(adminName);
@@ -48,9 +53,20 @@ const Chat: React.FC = () => {
       <div className="container mx-auto">
         <Header />
         <div className="flex flex-col gap-4">
+          {/* Search Section */}
+          <section className="search">
+            <input
+              type="text"
+              placeholder="Search for an admin..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input w-full text-black p-2 rounded"
+            />
+          </section>
+
           {/* Admin List */}
           <AdminList
-            admins={admins}
+            admins={filteredAdmins}
             openChat={openChat}
             selectedAdmin={selectedAdmin}
           />

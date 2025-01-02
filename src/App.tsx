@@ -12,6 +12,7 @@ import Chat from "./pages/Chat";
 import Gallery from "./pages/Gallery";
 import LoginPage from "./pages/LoginPage";
 import SignUp from "./pages/SignUp";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -28,6 +29,7 @@ const App: React.FC = () => {
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         </Routes>
       </div>
     </div>

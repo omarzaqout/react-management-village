@@ -15,6 +15,10 @@ const LoginPage = () => {
     navigate("/");
   };
 
+  const handleForgotPassword = () => {
+    navigate("/forgot-password");
+  };
+
   return (
     <div className="flex justify-center items-center h-screen bg-gray-800">
       <div className="bg-gray-900 p-6 rounded-lg shadow-lg w-80 text-center">
@@ -67,6 +71,15 @@ const LoginPage = () => {
           >
             Sign up
           </a>
+        </p>
+        <p className="text-white mt-2">
+          Forgot your password?{" "}
+          <button
+            onClick={handleForgotPassword}
+            className="text-blue-400 hover:underline focus:outline-none"
+          >
+            Reset it here
+          </button>
         </p>
       </div>
     </div>
