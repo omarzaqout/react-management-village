@@ -11,7 +11,7 @@ const App: React.FC = () => {
     <Router>
       <div className="flex ">
         <Sidebar />
-        <div className="flex-1 bg-gray-900 p-6">
+        <div className="md:flex-1  p-6 h-full">
           <Routes> 
             <Route path="/" element={<Dashboard />} /> 
             <Route path="/village-management" element={<VillageManagement />} />
