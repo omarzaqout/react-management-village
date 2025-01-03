@@ -1,53 +1,56 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import VillageItem from "../components/villageManagement/villageitem";
 import { Village } from "../interfaces/Village";
 import Popup from "../components/villageManagement/Popup";
 
-const villages: Village[] = [
-  {
-    id: 1, name: "Jabalia", region: "Gaza Strip",
-    landArea: "",
-    latitude: "",
-    longitude: "",
-    tags: ""
-  },
-  {
-    id: 2, name: "Beit Lahia", region: "Gaza Strip",
-    landArea: "",
-    latitude: "",
-    longitude: "",
-    tags: ""
-  },
-  {
-    id: 3, name: "Quds", region: "West Bank",
-    landArea: "",
-    latitude: "",
-    longitude: "",
-    tags: ""
-  },
-  {
-    id: 4, name: "Shejaiya", region: "Gaza Strip",
-    landArea: "",
-    latitude: "",
-    longitude: "",
-    tags: ""
-  },
-  {
-    id: 5, name: "Hebron", region: "West Bank",
-    landArea: "",
-    latitude: "",
-    longitude: "",
-    tags: ""
-  },
-];
+const GET_VILLAGES = `
+  query {
+    getVillages {
+      id
+      VillageName
+      RegionDistrict
+      LandArea
+      Latitude
+      Longitude
+      Image
+      CategoriesTags
+    }
+  }
+`;
 
 const VillageManagement: React.FC = () => {
+  const [villages, setVillages] = useState<Village[]>([]);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [popupTitle, setPopupTitle] = useState("");
-  const [popupInputs, setPopupInputs] = useState<{ label: string; type?: string; value?: string;placeholder?:string,disabled?:boolean }[]>([]);
+  const [popupInputs, setPopupInputs] = useState<{ label: string; type?: string; value?: string; placeholder?: string; disabled?: boolean }[]>([]);
+
+  useEffect(() => {
+    const fetchVillages = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/graphql", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: GET_VILLAGES,
+          }),
+        });
+        const data = await response.json();
+        console.log(data.data.getVillages); // Check if id exists in the response
+
+        setVillages(data.data.getVillages); // تعيين البيانات في حالة القرية
+      } catch (error) {
+        console.error("Error fetching villages:", error);
+      }
+    };
+
+    fetchVillages();
+  }, []);
 
   const handlePopup = (action: string, villageId?: number) => {
     console.log("action :" + action);
+    console.log(villageId);
     setIsPopupOpen(true);
     switch (action) {
       case "add":
@@ -63,44 +66,39 @@ const VillageManagement: React.FC = () => {
         ]);
         break;
       case "Update Village":
-        setPopupTitle("Update Village");
-        setPopupInputs([
-          { label: "Village Name:", type: "text", value:villages.find(v => v.id === villageId)?.name  },
-          { label: "Region/District:", type: "text", value: villages.find(v => v.id === villageId)?.region },
-          { label: "Land Area (sq km)", type: "text", value:villages.find(v => v.id === villageId)?.landArea  },
-          { label: "Latitude:", type: "text", value:villages.find(v => v.id === villageId)?.latitude },
-          { label: "Longitude:", type: "text", value: villages.find(v => v.id === villageId)?.longitude },
-          { label: "Upload Image:", type: "file", value: "" },
-          { label: "Categories/Tags:", type: "text", value:villages.find(v => v.id === villageId)?.tags},
-        ]);
-        break;
-        case "View":
-          setPopupTitle("View Village");
-          setPopupInputs([ 
-            { label: "Village ID: " + villageId },
-            { label: "Village Name: " + villages.find(v => v.id === villageId)?.name },
-            { label: "Region/District:: " + villages.find(v => v.id === villageId)?.region },
-            { label: "Land Area (sq km) " + villages.find(v => v.id === villageId)?.landArea },
-            { label: "Latitude: " + villages.find(v => v.id === villageId)?.latitude },
-            { label: "Longitude: " + villages.find(v => v.id === villageId)?.longitude },
-            { label: "Tags: " + villages.find(v => v.id === villageId)?.tags },
+        { setPopupTitle("Update Village");
+        const village = villages.find((v) => v.id === villageId);
+        if (village) {
+          setPopupInputs([
+            { label: "Village Name:", type: "text", value: village.VillageName.toString() },
+            { label: "Region/District:", type: "text", value: village.RegionDistrict.toString() },
+            { label: "Land Area (sq km)", type: "text", value: village.LandArea.toString() },
+            { label: "Latitude:", type: "text", value: village.Latitude.toString() },
+            { label: "Longitude:", type: "text", value: village.Longitude.toString() },
+            { label: "Upload Image:", type: "file", value: "" },
+            { label: "Categories/Tags:", type: "text", value: village.CategoriesTags.toString() },
           ]);
-          break;
-
-      case "Update Demographic Data":
-        setPopupTitle("Add Demographic Data for {name}");
-        setPopupInputs([
-          { label: "Population Size:", type: "text", value: "" },
-          { label: "Age Distribution:", type: "text", value: "", placeholder: "e.g., 0-14: 30%, 15-64: 60%, 65+: 10%" },
-          { label: "Gender Ratios:", type: "text", value: "", placeholder: "e.g., Male: 51%, Female: 49%" },
-          { label: "Population Growth Rate:", type: "text", value: "" },
-        ]);
-        break;
+        }
+        break; }
+      case "View":
+        { const viewVillage = villages.find((v) => v.id === villageId);
+        if (viewVillage) {
+          console.log(viewVillage);
+          setPopupTitle("View Village");
+          setPopupInputs([
+            { label: `Village Name: ${viewVillage.VillageName}` },
+            { label: `Region/District: ${viewVillage.RegionDistrict}` },
+            { label: `Land Area (sq km): ${viewVillage.LandArea}` },
+            { label: `Latitude: ${viewVillage.Latitude}` },
+            { label: `Longitude: ${viewVillage.Longitude}` },
+            { label: `Tags: ${viewVillage.CategoriesTags}` },
+          ]);
+        }
+        break; }
       default:
         setPopupInputs([]);
     }
   };
-  
 
   const closePopup = () => {
     setIsPopupOpen(false);
@@ -108,37 +106,46 @@ const VillageManagement: React.FC = () => {
 
   const handleSubmit = async (inputValues: string[]) => {
     const formData = {
-      VillageName: inputValues[0],  // قيمة المدخل الأول
+      VillageName: inputValues[0],
       RegionDistrict: inputValues[1],
-      LandArea: parseFloat(inputValues[2]),  // تحويل إلى رقم
+      LandArea: parseFloat(inputValues[2]),
       Latitude: parseFloat(inputValues[3]),
       Longitude: parseFloat(inputValues[4]),
-      CategoriesTags: inputValues[5],  // يمكن أن تكون فارغة
-      Image: inputValues[6] || "default_image_url",  // قيمة افتراضية إذا لم تكن موجودة
+      CategoriesTags: inputValues[5],
+      Image: inputValues[6] || "default_image_url",
     };
-  
+
+    const CREATE_VILLAGE = `
+      mutation {
+        addVillage(
+          VillageName: "${formData.VillageName}",
+          RegionDistrict: "${formData.RegionDistrict}",
+          LandArea: ${formData.LandArea},
+          Latitude: ${formData.Latitude},
+          Longitude: ${formData.Longitude},
+          Image: "${formData.Image}",
+          CategoriesTags: "${formData.CategoriesTags}"
+        )
+      }
+    `;
+
     try {
-      const response = await fetch("http://localhost:5000/api/villages", {
+      const response = await fetch("http://localhost:5000/graphql", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ query: CREATE_VILLAGE }),
       });
-  
-      if (!response.ok) {
-        throw new Error(`Failed to add village: ${response.statusText}`);
-      }
-  
+
       const data = await response.json();
       console.log("Village added:", data);
     } catch (error) {
       console.error("Error:", error);
     }
   };
-  
+
   return (
-   
     <div className="p-4 sm:p-6 lg:p-8 bg-gray-900 text-white rounded-md">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
         <button
@@ -157,30 +164,15 @@ const VillageManagement: React.FC = () => {
             className="p-3 bg-gray-700 border border-gray-600 rounded-md text-sm w-full"
           />
         </div>
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
-          <div className="flex items-center w-full sm:w-auto">
-            <label htmlFor="select" className="mr-2 text-sm text-white">
-              Sort by:
-            </label>
-            <select
-              className="p-3 bg-gray-700 border border-gray-600 rounded-md text-sm w-full sm:w-auto"
-              id="select"
-            >
-              <option>Default</option>
-              <option>Name</option>
-              <option>Region</option>
-            </select>
-          </div>
-        </div>
         <div className="grid grid-cols-1 gap-4">
           {villages.map((village) => (
             <VillageItem
-              key={village.id}
-              id={village.id}
-              name={village.name}
-              region={village.region}
+              id={village.id} 
+              key={village.VillageName}
+              name={village.VillageName.toString()}
+              region={village.RegionDistrict.toString()}
               onAction={(action) => handlePopup(action, village.id)}
-            />
+                         />
           ))}
         </div>
       </div>

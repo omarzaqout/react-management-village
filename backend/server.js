@@ -59,6 +59,7 @@ mongoose
     }
   
     type Village {
+      id:ID
       VillageName: String
       RegionDistrict: String
       LandArea: Int
@@ -108,7 +109,7 @@ const root = {
     return `user ? ${username} has been deleted. : User not found`;
   },
 // Village
-  addVillage: async ({ VillageName, RegionDistrict, LandArea, Latitude, Longitude, Image, CategoriesTags }) => {
+addVillage: async ({ VillageName, RegionDistrict, LandArea, Latitude, Longitude, Image, CategoriesTags }) => {
     const newVillage = new Village({
       VillageName,
       RegionDistrict,
@@ -118,7 +119,7 @@ const root = {
       Image,
       CategoriesTags: CategoriesTags || "undefined",
     });
-
+  
     try {
       await newVillage.save();
       return "Village added successfully!";
@@ -127,6 +128,7 @@ const root = {
       throw new Error("Failed to add village");
     }
   },
+  
 
   getVillage: async ({ VillageName }) => {
     try {
@@ -169,26 +171,21 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// إضافة قرية جديدة باستخدام REST API
 app.post("/api/villages", async (req, res) => {
     const { VillageName, RegionDistrict, LandArea, Latitude, Longitude, Image, CategoriesTags } = req.body;
   
-    // Validate required fields
     if (!VillageName || !RegionDistrict || !LandArea || !Latitude || !Longitude) {
       return res.status(400).json({ error: "All required fields must be provided" });
     }
   
-    // Convert string to number for LandArea, Latitude, and Longitude
     const landAreaNumber = parseFloat(LandArea);
     const latitudeNumber = parseFloat(Latitude);
     const longitudeNumber = parseFloat(Longitude);
   
-    // Check if conversion was successful
     if (isNaN(landAreaNumber) || isNaN(latitudeNumber) || isNaN(longitudeNumber)) {
       return res.status(400).json({ error: "LandArea, Latitude, and Longitude must be valid numbers" });
     }
   
-    // Create new village object
     const newVillage = new Village({
       VillageName,
       RegionDistrict,
@@ -200,7 +197,6 @@ app.post("/api/villages", async (req, res) => {
     });
   
     try {
-      // Save village to the database
       await newVillage.save();
       res.status(201).json({ message: "Village added successfully", village: newVillage });
     } catch (error) {
