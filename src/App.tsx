@@ -19,22 +19,27 @@ const App: React.FC = () => {
   const hideSidebarRoutes = ["/login", "/signup"];
 
   return (
-    <Router>
-      <div className="flex ">
-        <Sidebar />
-        <div className="flex-1 bg-gray-900 p-6">
-          <Routes> 
-            <Route path="/" element={<Dashboard />} /> 
-            <Route path="/village-management" element={<VillageManagement />} />
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/gallery" element={<Gallery />} />
-          </Routes>
-        </div>
+    <div className="flex">
+      {!hideSidebarRoutes.includes(location.pathname) && <Sidebar />}{" "}
+      <div className="flex-1 bg-gray-900 p-6">
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/village-management" element={<VillageManagement />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        </Routes>
       </div>
-    </Router>
+    </div>
   );
-  
 };
 
+const WrappedApp: React.FC = () => (
+  <Router>
+    <App />
+  </Router>
+);
 
-export default App;
+export default WrappedApp;
