@@ -106,10 +106,37 @@ const VillageManagement: React.FC = () => {
     setIsPopupOpen(false);
   };
 
-  const handleSubmit = (values: string[]) => {
-    console.log("Submitted values:", values);
+  const handleSubmit = async (inputValues: string[]) => {
+    const formData = {
+      VillageName: inputValues[0],  // قيمة المدخل الأول
+      RegionDistrict: inputValues[1],
+      LandArea: parseFloat(inputValues[2]),  // تحويل إلى رقم
+      Latitude: parseFloat(inputValues[3]),
+      Longitude: parseFloat(inputValues[4]),
+      CategoriesTags: inputValues[5],  // يمكن أن تكون فارغة
+      Image: inputValues[6] || "default_image_url",  // قيمة افتراضية إذا لم تكن موجودة
+    };
+  
+    try {
+      const response = await fetch("http://localhost:5000/api/villages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to add village: ${response.statusText}`);
+      }
+  
+      const data = await response.json();
+      console.log("Village added:", data);
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
-
+  
   return (
    
     <div className="p-4 sm:p-6 lg:p-8 bg-gray-900 text-white rounded-md">
