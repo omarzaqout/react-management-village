@@ -12,6 +12,7 @@ const LoginPage = () => {
   const handleLogin = (event: { preventDefault: () => void }) => {
     event.preventDefault();
 
+    
     navigate("/");
   };
 
