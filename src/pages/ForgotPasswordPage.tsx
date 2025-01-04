@@ -7,7 +7,7 @@ const ForgotPasswordPage = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: { preventDefault: () => void }) => {
     event.preventDefault();
 
     setLoading(true);
@@ -30,6 +30,7 @@ const ForgotPasswordPage = () => {
       } else {
         setError(data.error || "Failed to send reset email.");
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       setError("Failed to connect to server.");
     } finally {

@@ -1,4 +1,3 @@
-// server.js
 const express = require("express");
 const mongoose = require("mongoose");
 const { graphqlHTTP } = require("express-graphql");
@@ -39,8 +38,7 @@ const schema = buildSchema(`
     password: String
     email: String
     role: String
-  }`
-);
+  }`);
 
 // إعداد الريزولفرز (Resolvers)
 const root = {
@@ -80,7 +78,7 @@ const root = {
   },
   userDelete: async ({ username }) => {
     const user = await User.findOneAndDelete({ username });
-    return `user ? ${username} has been deleted. : User not found`.;
+    return user ? `User ${username} has been deleted.` : "User not found.";
   },
 };
 
@@ -88,7 +86,7 @@ const root = {
 const app = express();
 
 // إضافة CORS للسماح بالاتصال من واجهة العميل
-app.use(cors());
+app.use(cors({ origin: "http://localhost:3000" })); // تأكد من السماح للواجهة الأمامية (frontend) بالوصول
 
 // إعداد GraphQL
 app.use(

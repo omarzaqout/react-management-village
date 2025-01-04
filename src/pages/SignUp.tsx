@@ -12,7 +12,6 @@ const SignUp: React.FC = () => {
   const [resultMessage, setResultMessage] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false); // حالة إظهار/إخفاء كلمة السر
   const [errors, setErrors] = useState({
-    password: "",
     email: "",
   });
   const navigate = useNavigate();
@@ -29,23 +28,28 @@ const SignUp: React.FC = () => {
     setPasswordVisible((prevState) => !prevState);
   };
 
-  const validatePassword = (password: string) => {
-    // يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل، وأرقام، وحروف
-    const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
-    return regex.test(password);
+  const validateEmail = (email: string) => {
+    // التحقق من صحة البريد الإلكتروني باستخدام تعبير عادي
+    const regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    return regex.test(email);
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
 
     let formValid = true;
-    let newErrors = { password: "", email: "" };
+    const newErrors = { email: "" };
 
-    // التحقق من صحة كلمة المرور
-    if (!validatePassword(userState.password)) {
-      newErrors.password =
-        "Password must be at least 8 characters long and contain both letters and numbers.";
+    // التحقق من صحة البريد الإلكتروني فقط
+    if (!validateEmail(userState.email)) {
+      newErrors.email = "Please enter a valid email address.";
       formValid = false;
+    }
+
+    // إذا كانت البيانات غير صحيحة، لا نقوم بالتقديم
+    if (!formValid) {
+      setErrors(newErrors);
+      return;
     }
 
     try {
@@ -55,27 +59,27 @@ const SignUp: React.FC = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          query: `mutation {
-            userAdd(fullname: "${userState.fullname}", username: "${userState.username}", password: "${userState.password}", email: "${userState.email}", role: "${userState.role}")
-          }`,
+          query: `
+            mutation {
+              userAdd(fullname: "${userState.fullname}", username: "${userState.username}", password: "${userState.password}", email: "${userState.email}", role: "${userState.role}")
+            }`,
         }),
       });
 
       const result = await response.json();
+      console.log(result); // طباعة النتيجة للتحقق
 
-      // تجاهل أي خطأ يحدث أثناء التسجيل
-      setResultMessage("Sign up successful!");
-      navigate("/login");
+      if (result.errors) {
+        console.error("GraphQL Error: ", result.errors);
+        setResultMessage("An error occurred while signing up.");
+      } else {
+        setResultMessage("Sign up successful!");
+        navigate("/login");
+      }
     } catch (error) {
-      console.error(error);
-      // تجاوز أي أخطاء محتملة هنا
-      setResultMessage("Sign up successful!");
-      navigate("/login");
+      console.error("Error during sign up: ", error);
+      setResultMessage("An error occurred during sign up.");
     }
-
-    setErrors(newErrors);
-
-    if (!formValid) return; // إذا كانت هناك أخطاء في التحقق، لا نقوم بالتقديم
   };
 
   return (
@@ -107,7 +111,6 @@ const SignUp: React.FC = () => {
               value={userState.username}
               onChange={handleInputChange}
               placeholder="Enter your username"
-              required
               className="w-full p-3 rounded border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring focus:ring-blue-500"
             />
           </div>
@@ -150,9 +153,6 @@ const SignUp: React.FC = () => {
                 {passwordVisible ? "🙈" : "👁"}
               </button>
             </div>
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-2">{errors.password}</p>
-            )}
           </div>
           <button
             type="submit"
@@ -170,9 +170,7 @@ const SignUp: React.FC = () => {
             Login
           </a>
         </p>
-        {resultMessage && (
-          <div className="mt-4 text-green-400 text-sm">{resultMessage}</div>
-        )}
+        {resultMessage && <p className="mt-4 text-white">{resultMessage}</p>}
       </div>
     </div>
   );
