@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import VillageManagement from './pages/VillageManagement';
 import Chat from './pages/Chat';
 import Gallery from './pages/Gallery';
+import Overview from './pages/Overview';
 
 const App: React.FC = () => {
   return (
@@ -14,6 +15,7 @@ const App: React.FC = () => {
         <div className="flex-1 bg-gray-900 p-6">
           <Routes> 
             <Route path="/" element={<Dashboard />} /> 
+            <Route path="/overview" element={<Overview />} /> 
             <Route path="/village-management" element={<VillageManagement />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/gallery" element={<Gallery />} />

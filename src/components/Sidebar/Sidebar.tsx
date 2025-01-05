@@ -18,7 +18,7 @@ const Sidebar: React.FC = () => {
           {isOpen ? '←' : '☰'}
         </button>
         <div className="flex flex-col space-y-4">
-          <SidebarLink icon="🏠" label="Overview" to="/" isOpen={isOpen} />
+          <SidebarLink icon="🏠" label="Overview" to="/overview" isOpen={isOpen} />
           <SidebarLink icon="📋" label="Village Management" to="/village-management" isOpen={isOpen} />
           <SidebarLink icon="💬" label="Chat" to="/chat" isOpen={isOpen} />
           <SidebarLink icon="🖼️" label="Gallery" to="/gallery" isOpen={isOpen} />
