@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChatSectionProps } from "../interfaces/chat";
 
 type Admin = {
   name: string;
   img: string;
+  role: string; // Adding role to distinguish between user and admin
 };
 
 type Message = {
@@ -16,24 +17,30 @@ const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [admins, setAdmins] = useState<Admin[]>([]);
 
-  const admins: Admin[] = [
-    {
-      name: "Adham",
-      img: "https://th.bing.com/th/id/OIP.USP1T_5fjD1VcqeFBkbNDwHaHa?rs=1&pid=ImgDetMain",
-    },
-    {
-      name: "Omar",
-      img: "https://www.pngarts.com/files/5/User-Avatar-PNG-Transparent-Image.png",
-    },
-    {
-      name: "Mohammed",
-      img: "https://static.vecteezy.com/system/resources/previews/023/004/539/non_2x/a-man-with-black-glasses-avatar-art-free-vector.jpg",
-    },
-  ];
+  const userRole = localStorage.getItem("role"); // Get the role from localStorage
+
+  useEffect(() => {
+    // Fetch admins and users from the database
+    const fetchAdmins = async () => {
+      try {
+        const response = await fetch("/api/users"); // Replace with your API endpoint
+        const data = await response.json();
+        setAdmins(data); // Assuming the response returns an array of users
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    fetchAdmins();
+  }, []);
 
   const filteredAdmins = admins.filter((admin) =>
-    admin.name.toLowerCase().includes(searchQuery.toLowerCase())
+    userRole === "admin" // Show all if admin, or only admins if user
+      ? admin.name.toLowerCase().includes(searchQuery.toLowerCase())
+      : admin.role === "admin" &&
+        admin.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const openChat = (adminName: string): void => {
@@ -57,7 +64,7 @@ const Chat: React.FC = () => {
           <section className="search">
             <input
               type="text"
-              placeholder="Search for an admin..."
+              placeholder="Search for a user or admin..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input w-full text-black p-2 rounded"
@@ -86,7 +93,7 @@ const Chat: React.FC = () => {
               />
             ) : (
               <p className="text-center text-gray-400">
-                Select an admin to start a chat.
+                Select a user or admin to start a chat.
               </p>
             )}
           </div>
@@ -98,7 +105,7 @@ const Chat: React.FC = () => {
 
 const Header: React.FC = () => (
   <header className="flex justify-between items-center mb-4">
-    <h1 className="text-xl font-bold">Chat with Admins</h1>
+    <h1 className="text-xl font-bold">Chat with Users or Admins</h1>
   </header>
 );
 
@@ -114,7 +121,7 @@ const AdminList: React.FC<AdminListProps> = ({
   selectedAdmin,
 }) => (
   <section className="bg-gray-800 p-4 rounded">
-    <p className="text-lg font-semibold mb-4">Available Admins</p>
+    <p className="text-lg font-semibold mb-4">Available Users/Admins</p>
     <div className="flex gap-4 overflow-x-auto">
       {admins.map((admin) => (
         <div
