@@ -37,15 +37,19 @@ const LoginPage = () => {
         `,
       });
 
-      const { success, message, user } = response.data.data.userLogin;
+      const { success, message, user, role } = response.data.data.userLogin;
 
       if (success) {
+        localStorage.setItem("user", JSON.stringify(user)); // Store entire user object
+        localStorage.setItem("role", user.role);
+
         // Redirect based on user role
-        if (user.role === "admin") {
-          navigate("/admin-dashboard"); // Redirect to admin dashboard
-        } else {
-          navigate("/user-dashboard"); // Redirect to user dashboard
-        }
+        // if (user.role === "admin") {
+        //   navigate("/signup"); // Redirect to admin dashboard /// عدلها ل الادمن
+        // } else {
+        //   navigate("/user-dashboard"); // Redirect to user dashboard
+        // }
+        navigate("/");
       } else {
         setLoginError(message); // Show error message if login fails
       }
