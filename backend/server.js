@@ -119,9 +119,7 @@ const root = {
         from: process.env.EMAIL,
         to: email,
         subject: "Welcome to the Village System",
-
         text: `Hello ${fullname},\n\nWelcome to our system! Your account has been successfully created.\n\nUsername: ${username}\nRole: ${role || "user"}`,
-
       };
 
       await transporter.sendMail(mailOptions);

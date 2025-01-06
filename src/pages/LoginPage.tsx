@@ -51,7 +51,6 @@ const LoginPage = () => {
         //   navigate("/user-dashboard"); // Redirect to user dashboard
         // }
         navigate("/");
-
       } else {
         setLoginError(message); // Show error message if login fails
       }
