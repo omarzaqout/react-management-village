@@ -14,6 +14,7 @@ import LoginPage from "./pages/LoginPage";
 import SignUp from "./pages/SignUp";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 
+
 const App: React.FC = () => {
   const location = useLocation();
   const hideSidebarRoutes = ["/login", "/signup"];
