@@ -37,6 +37,7 @@ const ForgotPasswordPage = () => {
       } else {
         setError(data.error || "Failed to send reset email.");
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       console.error("Error details:", error);
       setError("Failed to connect to server. Please try again later.");
