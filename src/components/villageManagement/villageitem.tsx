@@ -32,5 +32,4 @@ const VillageItem: React.FC<VillageItemProps> = ({
   );
 };
 
-
 export default VillageItem;
