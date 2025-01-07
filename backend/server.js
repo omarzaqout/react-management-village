@@ -51,6 +51,18 @@ const schema = buildSchema(`
       Image: String
       CategoriesTags: String
     ): String
+          updateVillage(
+          id:Int!
+        VillageName: String!
+        RegionDistrict: String
+        LandArea: Int
+        Latitude: Float
+        Longitude: Float
+        Image: String
+        CategoriesTags: String
+      ): Village
+  deleteVillage(id: ID!): Village
+
   }
 
   type ChatMessage {
@@ -150,6 +162,43 @@ const root = {
       throw new Error("Failed to add village");
     }
   },
+  updateVillage: async ({ id,VillageName, RegionDistrict, LandArea, Latitude, Longitude, Image, CategoriesTags }) => {
+    try {
+      const updatedVillage = await Village.findOneAndUpdate(
+        { id },
+        { $set: { VillageName,RegionDistrict, LandArea, Latitude, Longitude, Image, CategoriesTags } },
+        { new: true }
+      );
+      return updatedVillage;
+    } catch (error) {
+      console.error("Error updating village:", error);
+      throw new Error("Failed to update village");
+    }
+  },
+  deleteVillage: async (id) => {
+    try {
+      console.log("Received id:", id.id);
+      
+      const villageId = Number(id.id);
+      console.log(`Converted id to: ${villageId}`); 
+  
+      if (isNaN(villageId)) {
+        throw new Error('Invalid ID provided');
+      }
+  
+      const deletedVillage = await Village.findOneAndDelete({ id: villageId });
+  
+      if (!deletedVillage) {
+        throw new Error('Village not found');
+      }
+      return deletedVillage; 
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to delete village');
+    }
+  },
+  
+  
   getUsers: async () => {
     const users = await User.find();
     return users;

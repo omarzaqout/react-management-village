@@ -6,7 +6,7 @@ const messageSchema = new mongoose.Schema({
   fromUsername: { type: String, required: true },
   toUsername: { type: String, required: true },
   message: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now }, // تاريخ الإرسال
+  createdAt: { type: Date, default: Date.now }, 
 });
 
 const Message = mongoose.model("Message", messageSchema);
