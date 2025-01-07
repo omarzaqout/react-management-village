@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 type ImageItem = {
-  id: number;
+  id: string;
   src: string;
   description: string;
   name: string;
@@ -24,36 +24,79 @@ const Dashboard: React.FC = () => {
     name: string;
   }>({ src: "", description: "", name: "" });
 
-  // دالة لتحميل الصورة المختارة
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (reader.result) {
-          setNewImage((prevImage) => ({
-            ...prevImage,
-            src: reader.result as string,
-          }));
+  // Fetch images from the database when the component mounts
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/graphql", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: `
+              query {
+                getImages {
+                  id
+                  src
+                  description
+                  name
+                }
+              }
+            `,
+          }),
+        });
+
+        const data = await response.json();
+        if (data.errors) {
+          console.error("Error fetching images:", data.errors);
+        } else {
+          setGallery(data.data.getImages);
         }
-      };
-      reader.readAsDataURL(file); // تحويل الصورة إلى base64
-    }
-  };
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+
+    fetchImages();
+  }, []);
 
   const addImage = () => {
-    setIsModalOpen(true); // فتح النافذة المنبثقة عند الضغط على "Add New Image"
+    setIsModalOpen(true); // Open modal for adding new image
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (newImage.src && newImage.description && newImage.name) {
-      const newImageItem = {
-        id: gallery.length + 1,
-        ...newImage,
-      };
-      setGallery([...gallery, newImageItem]);
-      setIsModalOpen(false);
-      setNewImage({ src: "", description: "", name: "" }); // إعادة تعيين القيم
+      try {
+        const response = await fetch("http://localhost:5000/graphql", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: `
+              mutation {
+                addImageWithLink(link: "${newImage.src}", description: "${newImage.description}", name: "${newImage.name}") 
+              }
+            `,
+          }),
+        });
+
+        const data = await response.json();
+        if (data.errors) {
+          console.error("Error adding image:", data.errors);
+        } else {
+          console.log("Image added:", data.data.addImageWithLink);
+          setGallery([
+            ...gallery,
+            { ...newImage, id: (gallery.length + 1).toString() }, // Convert the id to string
+          ]);
+                    setIsModalOpen(false);
+          setNewImage({ src: "", description: "", name: "" });
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
     }
   };
 
@@ -68,25 +111,32 @@ const Dashboard: React.FC = () => {
           Add New Image
         </button>
 
-        {/* نافذة منبثقة لإضافة صورة جديدة */}
+        {/* Modal for adding new image */}
         {isModalOpen && (
           <div className="modal fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
             <div className="modal-content bg-[#f5f5dc] p-6 rounded shadow-lg w-96">
               <h2 className="text-xl mb-4 text-[#4a4a4a]">Add New Image</h2>
-              
-              {/* إدخال لتحميل الصورة */}
+
+              {/* Image URL input */}
               <div>
-                <label className="block text-sm mb-2 text-[#4a4a4a]">Choose Image</label>
+                <label className="block text-sm mb-2 text-[#4a4a4a]">
+                  Image URL
+                </label>
                 <input
-                  type="file"
-                  accept="image/*"
-                  className="w-full p-2 border border-gray-300 rounded mb-4"
-                  onChange={handleImageUpload}
+                  type="text"
+                  className="w-full p-2 border border-gray-300 rounded mb-4 text-black"
+                  value={newImage.src}
+                  onChange={(e) =>
+                    setNewImage({ ...newImage, src: e.target.value })
+                  }
                 />
               </div>
-              
+
+              {/* Description input */}
               <div>
-                <label className="block text-sm mb-2 text-[#4a4a4a]">Description</label>
+                <label className="block text-sm mb-2 text-[#4a4a4a]">
+                  Description
+                </label>
                 <input
                   type="text"
                   className="w-full p-2 border border-gray-300 rounded mb-4 text-black"
@@ -96,8 +146,12 @@ const Dashboard: React.FC = () => {
                   }
                 />
               </div>
+
+              {/* Image Name input */}
               <div>
-                <label className="block text-sm mb-2 text-[#4a4a4a]">Image Name</label>
+                <label className="block text-sm mb-2 text-[#4a4a4a]">
+                  Image Name
+                </label>
                 <input
                   type="text"
                   className="w-full p-2 border border-gray-300 rounded mb-4 text-black"
@@ -107,6 +161,8 @@ const Dashboard: React.FC = () => {
                   }
                 />
               </div>
+
+              {/* Buttons */}
               <div className="flex justify-end">
                 <button
                   onClick={handleSubmit}
@@ -125,6 +181,7 @@ const Dashboard: React.FC = () => {
           </div>
         )}
 
+        {/* Gallery */}
         <div
           id="gallery"
           className="gallery grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"

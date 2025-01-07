@@ -152,7 +152,7 @@ const Chat: React.FC = () => {
   return (
     <div className="bg-gray-900 text-gray-100 min-h-screen p-4">
       <div className="container mx-auto">
-        <header className="flex justify-between items-center mb-4">
+        <header className="flex flex-col sm:flex-row justify-between items-center mb-4">
           <h1 className="text-xl font-bold">Chat with Users</h1>
         </header>
 
@@ -168,11 +168,11 @@ const Chat: React.FC = () => {
         {/* User List */}
         <div className="bg-gray-800 p-4 rounded mb-4">
           <p className="text-lg font-semibold mb-4">Available Users</p>
-          <div className="flex gap-4 overflow-x-auto">
+          <div className="flex gap-4 overflow-x-auto scrollbar-hide">
             {filteredUsers.map((user) => (
               <div
                 key={user.username}
-                className={`flex flex-col items-center cursor-pointer p-2 rounded  transition-all duration-300 ${
+                className={`flex-shrink-0 flex flex-col items-center cursor-pointer p-2 rounded transition-all duration-300 ${
                   selectedUser?.username === user.username
                     ? "border-blue-500 bg-gray-700"
                     : "border-gray-600"
@@ -180,7 +180,7 @@ const Chat: React.FC = () => {
                 onClick={() => setSelectedUser(user)}
               >
                 <img
-                  src={getUserImage(user.role)} // Use the function to determine the image URL based on role
+                  src={getUserImage(user.role)}
                   alt={user.fullname}
                   className="bg-gray-500 rounded-full w-16 h-16 mb-2 object-cover"
                 />
@@ -224,11 +224,10 @@ const Chat: React.FC = () => {
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   className="flex-grow p-2 rounded text-black h-20"
-                  
                 />
                 <button
                   onClick={sendMessage}
-                  className="bg-blue-500 w-20 px-4 py-2 rounded text-white"
+                  className="bg-blue-500 w-full sm:w-auto px-4 py-2 rounded text-white"
                 >
                   Send
                 </button>
