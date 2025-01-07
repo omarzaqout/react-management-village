@@ -12,7 +12,10 @@ const Message = require("./models/message.js");
 
 // Connect to MongoDB
 mongoose
-  .connect("mongodb://localhost:27017/village")
+  .connect("mongodb://localhost:27017/village", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Error connecting to MongoDB", err));
 
@@ -28,15 +31,17 @@ const transporter = nodemailer.createTransport({
 // GraphQL schema
 const schema = buildSchema(`
   type Query {
-    getMessages(adminName: String!): [Message]
     getUsers: [User]
     getVillages: [Village]
     userLogin(username: String!, password: String!): UserResponse
+    getMessages(senderUsername: String!, receiverUsername: String!): [ChatMessage]
+
   }
 
   type Mutation {
     addMessage(sender: String!, text: String!, adminName: String!): Message
     userAdd(fullname: String!, username: String!, password: String!, email: String!, role: String): String
+    sendMessage(senderUsername: String!, receiverUsername: String!, message: String!): String
     addVillage(
       VillageName: String!
       RegionDistrict: String!
@@ -46,6 +51,18 @@ const schema = buildSchema(`
       Image: String
       CategoriesTags: String
     ): String
+  }
+
+  type ChatMessage {
+    id: String
+    sender: String
+    receiver: String
+    message: String
+  }
+
+  type ChatMessages {
+    sentMessages: [ChatMessage]
+    receivedMessages: [ChatMessage]
   }
 
   type UserResponse {
@@ -84,15 +101,6 @@ const schema = buildSchema(`
 
 // Root resolver
 const root = {
-  getMessages: async ({ adminName }) => {
-    try {
-      const messages = await Message.find({ adminName }).sort({ timestamp: 1 });
-      return messages;
-    } catch (error) {
-      console.error("Error fetching messages:", error);
-      throw new Error("Failed to fetch messages");
-    }
-  },
   addMessage: async ({ sender, text, adminName }) => {
     const newMessage = new Message({ sender, text, adminName });
     try {
@@ -119,7 +127,9 @@ const root = {
         from: process.env.EMAIL,
         to: email,
         subject: "Welcome to the Village System",
-        text: `Hello ${fullname},\n\nWelcome to our system! Your account has been successfully created.\n\nUsername: ${username}\nRole: ${role || "user"}`,
+        text: `Hello ${fullname},\n\nWelcome to our system! Your account has been successfully created.\n\nUsername: ${username}\nRole: ${
+          role || "user"
+        }`,
       };
 
       await transporter.sendMail(mailOptions);
@@ -160,6 +170,76 @@ const root = {
       console.error("Error logging in:", error);
       throw new Error("Failed to login");
     }
+  },
+  getMessages: async ({ senderUsername, receiverUsername }) => {
+    const sender = await User.findOne({ username: senderUsername });
+    const receiver = await User.findOne({ username: receiverUsername });
+
+    if (!sender || !receiver) {
+      throw new Error("Sender or Receiver not found");
+    }
+
+    const messages = await Message.find({
+      $or: [
+        { fromUsername: senderUsername, toUsername: receiverUsername },
+        { fromUsername: receiverUsername, toUsername: senderUsername },
+      ],
+    }).sort({ createdAt: 1 });
+
+    return messages.map((msg) => ({
+      id: msg._id.toString(),
+      sender: msg.fromUsername,
+      receiver: msg.toUsername,
+      message: msg.message,
+    }));
+  },
+  sendMessage: async ({ senderUsername, receiverUsername, message }) => {
+    const sender = await User.findOne({ username: senderUsername });
+    const receiver = await User.findOne({ username: receiverUsername });
+
+    if (!sender || !receiver) {
+      throw new Error("Sender or Receiver not found");
+    }
+
+    const newMessage = new Message({
+      fromUsername: sender.username,
+      toUsername: receiver.username,
+      message: message,
+    });
+
+    try {
+      await newMessage.save();
+      return `Message sent successfully from ${senderUsername} to ${receiverUsername}`;
+    } catch (error) {
+      console.error("Error saving message:", error);
+      throw new Error("Failed to send message");
+    }
+  },
+  getUserChatMessages: async ({ username }) => {
+    const user = await User.findOne({ username });
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const sentMessages = await Message.find({ fromUsername: username }).lean();
+    const receivedMessages = await Message.find({
+      toUsername: username,
+    }).lean();
+
+    return {
+      sentMessages: sentMessages.map((msg) => ({
+        id: msg.id,
+        sender: msg.fromUsername,
+        receiver: msg.toUsername,
+        message: msg.message,
+      })),
+      receivedMessages: receivedMessages.map((msg) => ({
+        id: msg.id,
+        sender: msg.fromUsername,
+        receiver: msg.toUsername,
+        message: msg.message,
+      })),
+    };
   },
 };
 
