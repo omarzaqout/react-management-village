@@ -42,19 +42,21 @@ const schema = buildSchema(`
     userDelete(username: String!): String
   }
 
-  type Village {
-    villageName: String
-    urban: Boolean
-    area: Float
-    pu18: Float
-    pu35: Float
-    pu50: Float
-    pu65: Float
-    p65: Float
-    malePercentage: Float
-    femalePercentage: Float
-    location: [Float]
-  }
+type Village {
+  villageName: String
+  urban: Boolean
+  area: Float
+  pu18: Float
+  pu35: Float
+  pu50: Float
+  pu65: Float
+  p65: Float
+  malePercentage: Float
+  femalePercentage: Float
+  location: [Float]
+  population: Int
+}
+
 
   type User {
     fullname: String
@@ -115,10 +117,8 @@ const root = {
   },
   getAllVillagesPopulation: async () => {
     try {
-      const villages = await Village.find().select("pu18 pu35 pu50 pu65 p65 -_id");
-      return villages.map((village) => {
-        return village.pu18 + village.pu35 + village.pu50 + village.pu65 + village.p65;
-      });
+      const villages = await Village.find().select("population -_id");
+      return villages.map(village => village.population);
     } catch (error) {
       console.error("Error fetching village populations:", error);
       return [50000, 35000, 20000, 43000, 250000, 150000, 100000, 20000];
