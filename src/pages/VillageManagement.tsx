@@ -91,7 +91,7 @@ const VillageManagement: React.FC = () => {
               { label: "Land Area (sq km)", type: "text", value: village.LandArea.toString() },
               { label: "Latitude:", type: "text", value: village.Latitude.toString() },
               { label: "Longitude:", type: "text", value: village.Longitude.toString() },
-              { label: "Upload Image:", type: "file", value: "" },
+              { label: "Upload Image:", type: "file", value:"" },
               { label: "Categories/Tags:", type: "text", value: village.CategoriesTags.toString() },
             ]);
             
@@ -108,7 +108,7 @@ const VillageManagement: React.FC = () => {
               { label: ` Land Area (sq km): ${viewVillage.LandArea}` },
               { label: `Latitude: ${viewVillage.Latitude}` },
               { label: `Longitude: ${viewVillage.Longitude}` },
-              { label: ` Tags: ${viewVillage.CategoriesTags}` },
+              { label: ` Tags: ${viewVillage.CategoriesTags.toString()}` },
             ]);
           }
           break; }
@@ -124,10 +124,10 @@ const VillageManagement: React.FC = () => {
           case "Update Demographic Data": {
             const village = villages.find((v) => v.id === villageId);
             if (village) {
-              setPopupTitle(`Update Demographic Data for ${village.VillageName}`);
+              setPopupTitle(`Add Demographic Data for ${village.VillageName}`);
               setPopupInputs([
                 { label: "Population Size:", type: "text", value:"" },
-                { label: "Age Distribution:", type: "text", placeholder: "e.g., 0-14: 30%, 15-64: 60%, 65+: 10%",value:"" },
+                { label: "Age Distribution:", type: "text", placeholder: "e.g., 0-18: 30%, 19-35: 60%, 36-50:10% , 51-65:0%,66+:0%",value:"" },
                 { label: "Gender Ratios:", type: "text",placeholder:"e.g., Male: 51%, Female: 49%" ,value:"" },
                 { label: "Population Growth Rate:", type: "text", value:"" },
               ]);
@@ -161,35 +161,30 @@ const VillageManagement: React.FC = () => {
   };
 
   const handleSubmit = async (inputValues: string[], villageId?: number) => {
-
     const formData = {
       VillageName: inputValues[0],
       RegionDistrict: inputValues[1],
       LandArea: parseInt(inputValues[2]),
       Latitude: parseFloat(inputValues[3]),
       Longitude: parseFloat(inputValues[4]),
-      CategoriesTags: inputValues[5],
-      Image: inputValues[6] || "default_image_url",
+      CategoriesTags: inputValues[6],
+      Image: inputValues[5] || "default_image_url",
     };
-    const Demographic={
-      PopulationSize: inputValues[0],
-      AgeDistribution: inputValues[1],
-      GenderRatios: inputValues[2],
-      PopulationGrowthRate: inputValues[3],
-    }
+    
+    console.log("Form Data:", formData);
   
     if (popupTitle === "Add New Village") {
       const CREATE_VILLAGE = `mutation {
-          addVillage(
-            VillageName: "${formData.VillageName}",
-            RegionDistrict: "${formData.RegionDistrict}",
-            LandArea: ${formData.LandArea},
-            Latitude: ${formData.Latitude},
-            Longitude: ${formData.Longitude},
-            Image: "${formData.Image}",
-            CategoriesTags: "${formData.CategoriesTags}"
-          )
-        }`;
+        addVillage(
+          VillageName: "${formData.VillageName}",
+          RegionDistrict: "${formData.RegionDistrict}",
+          LandArea: ${formData.LandArea},
+          Latitude: ${formData.Latitude},
+          Longitude: ${formData.Longitude},
+          Image: "${formData.Image}",
+          CategoriesTags: "${formData.CategoriesTags}"
+        )
+      }`;
   
       try {
         const response = await fetch("http://localhost:5000/graphql", {
@@ -201,7 +196,8 @@ const VillageManagement: React.FC = () => {
         });
   
         const data = await response.json();
-        
+        console.log("Response:", data);
+  
         if (data.errors) {
           console.error("Error adding village:", data.errors);
         } else {
@@ -211,23 +207,23 @@ const VillageManagement: React.FC = () => {
         console.error("Error adding village:", error);
       }
     }
-      if (popupTitle === "Update Village" && villageId) {
-      console.log("Village ID for update:", villageId);
+  
+    if (popupTitle === "Update Village" && villageId) {
       const UPDATE_VILLAGE = `mutation {
-          updateVillage(
-            id: ${villageId},
-            VillageName: "${formData.VillageName}",
-            RegionDistrict: "${formData.RegionDistrict}",
-            LandArea: ${formData.LandArea},
-            Latitude: ${formData.Latitude},
-            Longitude: ${formData.Longitude},
-            Image: "${formData.Image}",
-            CategoriesTags: "${formData.CategoriesTags}"
-          ) {
-            id
-            VillageName
-          }
-        }`;
+        updateVillage(
+          id: ${villageId},
+          VillageName: "${formData.VillageName}",
+          RegionDistrict: "${formData.RegionDistrict}",
+          LandArea: ${formData.LandArea},
+          Latitude: ${formData.Latitude},
+          Longitude: ${formData.Longitude},
+          Image: "${formData.Image}",
+          CategoriesTags: "${formData.CategoriesTags}"
+        ) {
+          id
+          VillageName
+        }
+      }`;
   
       try {
         const response = await fetch("http://localhost:5000/graphql", {
@@ -244,60 +240,80 @@ const VillageManagement: React.FC = () => {
         console.error("Error updating village:", error);
       }
     }
-    if (popupTitle === "Delete Village" && villageId) {
-      const DELETE_VILLAGE = `
-        mutation {
-          deleteVillage(id: ${villageId}) {
-            id
-            VillageName
-          }
+  
+    // Handling demographic data submission:
+    if (popupTitle.startsWith("Add Demographic Data for") && villageId) {
+      
+      const ageDistribution = inputValues[1];
+      const ageGroups = ageDistribution
+        .split(",")
+        .map((group) => {
+          const [range, percentage] = group.trim().split(":");
+          return { range: range.trim(), percentage: parseFloat(percentage) };
+        });
+  
+      const demographicData = {
+        PopulationSize: parseInt(inputValues[0]),
+        AgeDistribution: {
+          pu18: ageGroups.find((group) => group.range === "0-18")?.percentage || 0,
+          pu35: ageGroups.find((group) => group.range === "19-35")?.percentage || 0,
+          pu50: ageGroups.find((group) => group.range === "36-50")?.percentage || 0,
+          pu65: ageGroups.find((group) => group.range === "51-65")?.percentage || 0,
+          p65: ageGroups.find((group) => group.range === "66+")?.percentage || 0,
+        },
+        GenderRatios: inputValues[2],
+        PopulationGrowthRate: parseFloat(inputValues[3]),
+      };
+  
+      const SAVE_DEMOGRAPHIC_DATA = `mutation {
+        updateDemography(
+          id: ${villageId},
+          pu18: ${demographicData.AgeDistribution.pu18},
+          pu35: ${demographicData.AgeDistribution.pu35},
+          pu50: ${demographicData.AgeDistribution.pu50},
+          pu65: ${demographicData.AgeDistribution.pu65},
+          p65: ${demographicData.AgeDistribution.p65},
+          malePercentage: ${parseFloat(demographicData.GenderRatios.split(",")[0]) || 0},
+          femalePercentage: ${parseFloat(demographicData.GenderRatios.split(",")[1]) || 0},
+          populationGrowthRate: ${demographicData.PopulationGrowthRate},
+          population: ${demographicData.PopulationSize}
+        ) {
+          id
+          pu18
+          pu35
+          pu50
+          pu65
+          p65
+          malePercentage
+          femalePercentage
+          populationGrowthRate
+          population
         }
-      `;
-    
-      console.log("Village ID:", villageId);  
-      
-      console.log("GraphQL Query:", DELETE_VILLAGE);  
-      
+      }`;
+  
+      console.log("GraphQL Mutation:", SAVE_DEMOGRAPHIC_DATA);
+  
       try {
         const response = await fetch("http://localhost:5000/graphql", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            query: DELETE_VILLAGE,
-          }),
+          body: JSON.stringify({ query: SAVE_DEMOGRAPHIC_DATA }),
         });
-    
-        console.log("Response Status:", response.status);  
-        
+  
         const data = await response.json();
-        console.log("Response from server:", data);  
-    
+        console.log("Demographic data saved:", data);
+  
         if (data.errors) {
-          console.error("Error deleting village:", data.errors);  
-        } else {
-          console.log("Village deleted:", data.data.deleteVillage);  
-              setVillages((prevVillages) =>
-            prevVillages.filter((village) => village.id !== villageId)
-          );
-          console.log("Updated Villages:", villages.filter((village) => village.id !== villageId));  
-    
-          closePopup(); 
+          console.error("Error saving demographic data:", data.errors);
         }
       } catch (error) {
-        console.error("Error deleting village:", error);
+        console.error("Error saving demographic data:", error);
       }
     }
-    if (popupTitle.startsWith("Add Demographic Data for") && villageId) {
-      
-    }
-
-
-    
-    
-    
   };
+  
   
   
 
@@ -340,7 +356,7 @@ const VillageManagement: React.FC = () => {
   inputs={popupInputs}
   isOpen={isPopupOpen}
   onClose={closePopup}
-  onSubmit={(inputValues) => handleSubmit(inputValues, selectedVillageId )} // تمرير selectedVillageId فقط في حالة التحديث
+  onSubmit={(inputValues) => handleSubmit(inputValues, selectedVillageId )} 
   id={selectedVillageId}
 />
 

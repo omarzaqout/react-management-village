@@ -5,7 +5,8 @@ export interface Village {
   landArea: string;
   latitude: string;
   longitude: string;
-  tags: string;
+  image:string;
+  CategoriesTags: string;
   [key: string]: string | number; 
 }
 export interface VillageItemProps {
