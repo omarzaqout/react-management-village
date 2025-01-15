@@ -10,6 +10,9 @@ const User = require("./models/user.js");
 const Village = require("./models/village.js");
 const Message = require("./models/message.js");
 const Image = require("./models/image.js");
+
+const Image = require("./models/Image.js");
+
 // Connect to MongoDB
 mongoose
   .connect("mongodb://localhost:27017/village", {
@@ -53,6 +56,9 @@ const schema = buildSchema(`
 
   type Mutation {
     addImageWithLink(link: String!, description: String!, name: String!): String
+
+      addImageWithLink(link: String!, description: String!, name: String!): String
+  addImage(name: String!, description: String!, image: String!): Image
     addMessage(sender: String!, text: String!, adminName: String!): Message
     userAdd(fullname: String!, username: String!, password: String!, email: String!, role: String): String
     sendMessage(senderUsername: String!, receiverUsername: String!, message: String!): String

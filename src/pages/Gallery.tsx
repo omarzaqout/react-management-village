@@ -119,18 +119,33 @@ const Dashboard: React.FC = () => {
               
               {/* إدخال لتحميل الصورة */}
               <div>
-                <label className="block text-sm mb-2 text-[#4a4a4a]">Choose Image</label>
+                <label className="block text-sm mb-2 text-[#4a4a4a]">
+>>>>>>>>> Temporary merge branch 2
+                  Image URL
+                </label>
                 <input
-                  type="file"
-                  accept="image/*"
-                  className="w-full p-2 border border-gray-300 rounded mb-4"
-                  onChange={handleImageUpload}
+                  type="text"
+<<<<<<<<< Temporary merge branch 1
+                  className="w-full p-2 border border-gray-300 rounded mb-4  text-black"
+=========
+                  className="w-full p-2 border border-gray-300 rounded mb-4 text-black"
+>>>>>>>>> Temporary merge branch 2
+                  value={newImage.src}
+                  onChange={(e) =>
+                    setNewImage({ ...newImage, src: e.target.value })
+                  }
                 />
               </div>
 
               {/* Description input */}
               <div>
-                <label className="block text-sm mb-2 text-[#4a4a4a]">Description</label>
+<<<<<<<<< Temporary merge branch 1
+                <label className="block text-sm mb-2 text-white ">
+=========
+                <label className="block text-sm mb-2 text-[#4a4a4a]">
+>>>>>>>>> Temporary merge branch 2
+                  Description
+                </label>
                 <input
                   type="text"
                   className="w-full p-2 border border-gray-300 rounded mb-4 text-black"
@@ -143,7 +158,13 @@ const Dashboard: React.FC = () => {
 
               {/* Image Name input */}
               <div>
-                <label className="block text-sm mb-2 text-[#4a4a4a]">Image Name</label>
+<<<<<<<<< Temporary merge branch 1
+                <label className="block text-sm mb-2 text-white ">
+=========
+                <label className="block text-sm mb-2 text-[#4a4a4a]">
+>>>>>>>>> Temporary merge branch 2
+                  Image Name
+                </label>
                 <input
                   type="text"
                   className="w-full p-2 border border-gray-300 rounded mb-4 text-black"
