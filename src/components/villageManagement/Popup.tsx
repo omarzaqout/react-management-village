@@ -42,23 +42,23 @@ const Popup: React.FC<PopupProps> = ({ title, inputs, isOpen, onClose, onSubmit 
 
   if (!isOpen) return null;
 
-  // التحقق من أن المدخلات تحتوي على قيم صالحة
   const allInputsFilled = inputs.every((input, index) => {
-    if (input.type === "file") return true; // المدخلات من نوع file لا نحتاج للتحقق من قيمتها
-    return inputValues[index] && inputValues[index] !== "undefined" && inputValues[index] !== ""; // التحقق من أن القيمة ليست فارغة أو "undefined"
+    if (input.type === "file") return true; 
+    return inputValues[index] && inputValues[index] !== "undefined" && inputValues[index] !== ""; 
   });
 
   return (
     <div className="popup fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
       <div className="bg-gray-800 p-6 rounded-md w-full max-w-[90%] sm:max-w-[60%] lg:max-w-[40%]">
+        <div className="flex justify-between">
         <h2 className="text-xl text-white mb-4">{title}</h2>
         <button
           onClick={onClose}
-          className="bg-red-500 text-white py-2 px-4 rounded-md w-full mt-2 hover:bg-red-600"
+          className=" text-white  px-4 rounded-md  mt-2"
         >
           X
         </button>
-
+        </div>
         {inputs.map((input, index) => {
           if (input.type === undefined) {
             return <div key={index} className="text-white mb-2">{input.label}</div>;
@@ -82,7 +82,7 @@ const Popup: React.FC<PopupProps> = ({ title, inputs, isOpen, onClose, onSubmit 
               key={index}
               label={input.label}
               type={input.type || "text"}
-              value={inputValues[index]} // لن يتم تطبيقه على المدخلات من نوع "file"
+              value={inputValues[index]} 
               placeholder={input.placeholder}
               onChange={(value) => handleChange(index, value)}
               disabled={input.disabled}
@@ -90,12 +90,12 @@ const Popup: React.FC<PopupProps> = ({ title, inputs, isOpen, onClose, onSubmit 
           );
         })}
 
-        {/* الزر يظهر فقط إذا كانت كل المدخلات تحتوي على قيم */}
           <button
             onClick={handleSubmit}
             className="bg-indigo-500 text-white py-2 px-4 rounded-md w-full mt-4 hover:bg-indigo-600"
-          >
-            Submit
+            style={{ display: title === "View Village" ? "none" : "block" }}
+            >
+            {title}
           </button>
         
       </div>

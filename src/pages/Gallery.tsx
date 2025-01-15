@@ -106,7 +106,7 @@ const Dashboard: React.FC = () => {
         <button
           id="addImageBtn"
           onClick={addImage}
-          className="add-image-btn bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-5"
+          className="add-image-btn bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 mb-5"
         >
           Add New Image
         </button>
@@ -116,27 +116,21 @@ const Dashboard: React.FC = () => {
           <div className="modal fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
             <div className="modal-content bg-[#f5f5dc] p-6 rounded shadow-lg w-96">
               <h2 className="text-xl mb-4 text-[#4a4a4a]">Add New Image</h2>
-
-              {/* Image URL input */}
+              
+              {/* إدخال لتحميل الصورة */}
               <div>
-                <label className="block text-sm mb-2 text-[#4a4a4a]">
-                  Image URL
-                </label>
+                <label className="block text-sm mb-2 text-[#4a4a4a]">Choose Image</label>
                 <input
-                  type="text"
-                  className="w-full p-2 border border-gray-300 rounded mb-4 text-black"
-                  value={newImage.src}
-                  onChange={(e) =>
-                    setNewImage({ ...newImage, src: e.target.value })
-                  }
+                  type="file"
+                  accept="image/*"
+                  className="w-full p-2 border border-gray-300 rounded mb-4"
+                  onChange={handleImageUpload}
                 />
               </div>
 
               {/* Description input */}
               <div>
-                <label className="block text-sm mb-2 text-[#4a4a4a]">
-                  Description
-                </label>
+                <label className="block text-sm mb-2 text-[#4a4a4a]">Description</label>
                 <input
                   type="text"
                   className="w-full p-2 border border-gray-300 rounded mb-4 text-black"
@@ -149,9 +143,7 @@ const Dashboard: React.FC = () => {
 
               {/* Image Name input */}
               <div>
-                <label className="block text-sm mb-2 text-[#4a4a4a]">
-                  Image Name
-                </label>
+                <label className="block text-sm mb-2 text-[#4a4a4a]">Image Name</label>
                 <input
                   type="text"
                   className="w-full p-2 border border-gray-300 rounded mb-4 text-black"
