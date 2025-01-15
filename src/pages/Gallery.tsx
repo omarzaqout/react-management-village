@@ -120,16 +120,12 @@ const Dashboard: React.FC = () => {
               {/* إدخال لتحميل الصورة */}
               <div>
                 <label className="block text-sm mb-2 text-[#4a4a4a]">
->>>>>>>>> Temporary merge branch 2
                   Image URL
                 </label>
                 <input
                   type="text"
-<<<<<<<<< Temporary merge branch 1
                   className="w-full p-2 border border-gray-300 rounded mb-4  text-black"
-=========
                   className="w-full p-2 border border-gray-300 rounded mb-4 text-black"
->>>>>>>>> Temporary merge branch 2
                   value={newImage.src}
                   onChange={(e) =>
                     setNewImage({ ...newImage, src: e.target.value })
@@ -139,11 +135,8 @@ const Dashboard: React.FC = () => {
 
               {/* Description input */}
               <div>
-<<<<<<<<< Temporary merge branch 1
                 <label className="block text-sm mb-2 text-white ">
-=========
                 <label className="block text-sm mb-2 text-[#4a4a4a]">
->>>>>>>>> Temporary merge branch 2
                   Description
                 </label>
                 <input
@@ -158,11 +151,8 @@ const Dashboard: React.FC = () => {
 
               {/* Image Name input */}
               <div>
-<<<<<<<<< Temporary merge branch 1
                 <label className="block text-sm mb-2 text-white ">
-=========
                 <label className="block text-sm mb-2 text-[#4a4a4a]">
->>>>>>>>> Temporary merge branch 2
                   Image Name
                 </label>
                 <input
