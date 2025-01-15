@@ -24,7 +24,7 @@ const Sidebar: React.FC = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("user"); 
-    navigate("./login");
+    navigate("./");
   };
 
   return (
