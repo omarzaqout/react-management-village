@@ -5,7 +5,8 @@ export interface Village {
   landArea: string;
   latitude: string;
   longitude: string;
-  tags: string;
+  image:string;
+  CategoriesTags: string;
   [key: string]: string | number; 
 }
 export interface VillageItemProps {
@@ -16,11 +17,13 @@ export interface VillageItemProps {
   }
   export interface PopupProps {
     title: string;
-    inputs: { label: string; type?: string; value?: string; placeholder?: string; disabled?: boolean }[]; 
+    inputs: { label: string; type?: string; value?: string; placeholder?: string; disabled?: boolean }[];
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (values: string[]) => void;
-  } 
+    onSubmit: (values: string[], id?: number) => void; // إضافة id كمعامل اختياري
+    id?: number; // حقل اختياري لتمرير selectedVillageId
+  }
+  
   export interface InputFieldProps {
     label: string;
     type: string;

@@ -2,7 +2,6 @@ import React from "react";
 import { InputFieldProps } from "../../interfaces/Village";
 
 
-
 const InputField: React.FC<InputFieldProps> = ({ label, type, value, onChange,placeholder,disabled}) => {
   return (
     <div className="mb-1">

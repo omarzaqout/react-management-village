@@ -50,7 +50,7 @@ const LoginPage = () => {
         // } else {
         //   navigate("/user-dashboard"); // Redirect to user dashboard
         // }
-        navigate("/");
+        navigate("/VillageManagement");
       } else {
         setLoginError(message); // Show error message if login fails
       }

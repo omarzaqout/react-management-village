@@ -5,26 +5,25 @@ import SidebarLink from "./SidebarLink";
 const Sidebar: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
   const [userName, setUserName] = useState<string>("");
-  const [isAdmin, setIsAdmin] = useState<boolean>(false); // حالة للتحقق من الدور
+  const [isAdmin, setIsAdmin] = useState<boolean>(false); 
   const navigate = useNavigate();
 
   const currentUserString = localStorage.getItem("user");
   const currentUser = currentUserString ? JSON.parse(currentUserString) : null;
   const storedUserName = currentUser?.username || "";
-  const storedRole = currentUser?.role || "user"; // دور المستخدم (افتراضي: user)
+  const storedRole = currentUser?.role || "user"; 
 
-  // استخدام useEffect لجلب بيانات المستخدم عند تحميل الصفحة
   useEffect(() => {
     if (storedUserName) {
       setUserName(storedUserName);
     }
     if (storedRole === "admin") {
-      setIsAdmin(true); // تحديث حالة الدور
+      setIsAdmin(true); 
     }
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("user"); // إزالة بيانات المستخدم عند تسجيل الخروج
+    localStorage.removeItem("user"); 
     navigate("./login");
   };
 
@@ -42,7 +41,7 @@ const Sidebar: React.FC = () => {
           {isOpen ? "←" : "☰"}
         </button>
         <div className="flex flex-col space-y-4">
-          <SidebarLink icon="🏠" label="Overview" to="/" isOpen={isOpen} />
+          <SidebarLink icon="🏠" label="Overview" to="/Overview" isOpen={isOpen} />
           <SidebarLink
             icon="📋"
             label="Village Management"

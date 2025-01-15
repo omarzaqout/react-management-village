@@ -35,7 +35,20 @@ const schema = buildSchema(`
     getVillages: [Village]
     userLogin(username: String!, password: String!): UserResponse
     getMessages(senderUsername: String!, receiverUsername: String!): [ChatMessage]
+
     getImages: [Image] 
+
+     getAllVillages: [String]
+    getAllVillagesPopulation: [Int]
+    getAgeDistribution: [Float]
+    getGenderRatios: [Float]
+    getTotalVillages: Int 
+    getTotalUrban: Int
+    getTotalPopulation: Int
+    getTotalArea: Float
+    getAllLocations: [[Float]]
+
+
   }
 
   type Mutation {
@@ -52,6 +65,31 @@ const schema = buildSchema(`
       Image: String
       CategoriesTags: String
     ): String
+          updateVillage(
+          id:Int!
+        VillageName: String!
+        RegionDistrict: String
+        LandArea: Int
+        Latitude: Float
+        Longitude: Float
+        Image: String
+        CategoriesTags: String
+      ): Village
+  deleteVillage(id: ID!): Village
+   updateDemography(
+      id: Int!
+      pu18: Float
+      pu35: Float
+      pu50: Float
+      pu65: Float
+      p65: Float
+      malePercentage: Float
+      femalePercentage: Float
+      populationGrowthRate:Float
+      population:Int
+    ): Village
+
+
   }
 
   type ChatMessage {
@@ -66,6 +104,8 @@ const schema = buildSchema(`
     description: String!
     name: String!
   }
+    
+
   type ChatMessages {
     sentMessages: [ChatMessage]
     receivedMessages: [ChatMessage]
@@ -102,7 +142,18 @@ const schema = buildSchema(`
     Longitude: Float
     Image: String
     CategoriesTags: String
+    location: [Float]
+    pu18: Float
+    pu35: Float
+     pu50: Float
+     pu65: Float
+     p65: Float
+     malePercentage: Float
+    femalePercentage: Float
+    populationGrowthRate:Float
+    population:Int
   }
+
 `);
 
 // Root resolver
@@ -147,7 +198,13 @@ const root = {
     }
   },
   addVillage: async (data) => {
-    const newVillage = new Village(data);
+    const { Latitude, Longitude, ...rest } = data;
+    const newVillage = new Village({
+      ...rest,
+      Latitude,
+      Longitude,
+      location: [Latitude, Longitude],
+    });
     try {
       await newVillage.save();
       return "Village added successfully!";
@@ -156,6 +213,99 @@ const root = {
       throw new Error("Failed to add village");
     }
   },
+  updateVillage: async ({
+    id,
+    VillageName,
+    RegionDistrict,
+    LandArea,
+    Latitude,
+    Longitude,
+    Image,
+    CategoriesTags,
+  }) => {
+    try {
+      const updatedVillage = await Village.findOneAndUpdate(
+        { id },
+        {
+          $set: {
+            VillageName,
+            RegionDistrict,
+            LandArea,
+            Latitude,
+            Longitude,
+            Image,
+            CategoriesTags,
+            location: [Latitude, Longitude], // Automatically update location array
+          },
+        },
+        { new: true }
+      );
+      return updatedVillage;
+    } catch (error) {
+      console.error("Error updating village:", error);
+      throw new Error("Failed to update village");
+    }
+  },
+  updateDemography: async ({
+    id,
+    pu18,
+    pu35,
+    pu50,
+    pu65,
+    p65,
+    malePercentage,
+    femalePercentage,
+    populationGrowthRate,
+    population,
+  }) => {
+    try {
+      const updatedVillage = await Village.findOneAndUpdate(
+        { id },
+        {
+          $set: {
+            pu18,
+            pu35,
+            pu50,
+            pu65,
+            p65,
+            malePercentage,
+            femalePercentage,
+            populationGrowthRate,
+            population,
+          },
+        },
+        { new: true }
+      );
+      return updatedVillage;
+    } catch (error) {
+      console.error("Error updating demography:", error);
+      throw new Error("Failed to update demography");
+    }
+  },
+
+  deleteVillage: async (id) => {
+    try {
+      console.log("Received id:", id.id);
+
+      const villageId = Number(id.id);
+      console.log(`Converted id to: ${villageId}`);
+
+      if (isNaN(villageId)) {
+        throw new Error("Invalid ID provided");
+      }
+
+      const deletedVillage = await Village.findOneAndDelete({ id: villageId });
+
+      if (!deletedVillage) {
+        throw new Error("Village not found");
+      }
+      return deletedVillage;
+    } catch (error) {
+      console.error(error);
+      throw new Error("Failed to delete village");
+    }
+  },
+
   getUsers: async () => {
     const users = await User.find();
     return users;
@@ -255,8 +405,150 @@ const root = {
   },
 
   getImages: async () => {
-    const images = await Image.find();  // جلب الصور من قاعدة البيانات
+    const images = await Image.find(); // جلب الصور من قاعدة البيانات
     return images;
+  },
+  getAllVillages: async () => {
+    try {
+      const villages = await Village.find().select("VillageName");
+      console.log(
+        "vlg:",
+        villages.map((village) => village.VillageName)
+      );
+
+      return villages.map((village) => village.VillageName);
+    } catch (error) {
+      console.error("Error fetching villages:", error);
+      return [
+        "Jabalia",
+        "Beit Lahia",
+        "Quds",
+        "Shejaiya",
+        "Hebron",
+        "Nablus",
+        "Ramallah",
+        "Beit Jala",
+      ];
+    }
+  },
+  getAllVillagesPopulation: async () => {
+    try {
+      const villages = await Village.find().select("population");
+      console.log(
+        "pop:",
+        villages.map((village) => village.population)
+      );
+      return villages.map((village) => village.population);
+    } catch (error) {
+      console.error("Error fetching village populations:", error);
+      return [50000, 35000, 20000, 43000, 250000, 150000, 100000, 20000];
+    }
+  },
+  getAgeDistribution: async () => {
+    try {
+      const villages = await Village.find();
+      const totalVillages = villages.length;
+      const totals = { pu18: 0, pu35: 0, pu50: 0, pu65: 0, p65: 0 };
+      villages.forEach((village) => {
+        totals.pu18 += village.pu18;
+        totals.pu35 += village.pu35;
+        totals.pu50 += village.pu50;
+        totals.pu65 += village.pu65;
+        totals.p65 += village.p65;
+      });
+      return Object.values(totals).map((total) => total / totalVillages);
+    } catch (error) {
+      console.error("Error calculating age distribution:", error);
+      return [55, 90, 44, 24, 15];
+    }
+  },
+  getGenderRatios: async () => {
+    try {
+      const villages = await Village.find();
+      const totalVillages = villages.length;
+      let maleTotal = 0;
+      let femaleTotal = 0;
+      villages.forEach((village) => {
+        maleTotal += village.malePercentage;
+        femaleTotal += village.femalePercentage;
+      });
+      return [maleTotal / totalVillages, femaleTotal / totalVillages];
+    } catch (error) {
+      console.error("Error calculating gender ratios:", error);
+      return [55, 45];
+    }
+  },
+  getTotalVillages: async () => {
+    try {
+      const countRural = await Village.countDocuments({
+        CategoriesTags: { $regex: /^rural$/i },
+      });
+      console.log("countRural:", countRural);
+      return countRural;
+    } catch (error) {
+      console.error("error ", error);
+      return 0;
+    }
+  },
+  getTotalUrban: async () => {
+    try {
+      const countUrban = await Village.countDocuments({
+        CategoriesTags: { $regex: /^urban$/i },
+      });
+      console.log("countUrban:", countUrban);
+      return countUrban;
+    } catch (error) {
+      console.error("error ", error);
+      return 0;
+    }
+  },
+  getTotalPopulation: async () => {
+    try {
+      const villages = await Village.find().select(
+        "pu18 pu35 pu50 pu65 p65 -_id"
+      );
+      return villages.reduce((sum, village) => {
+        return (
+          sum +
+          village.pu18 +
+          village.pu35 +
+          village.pu50 +
+          village.pu65 +
+          village.p65
+        );
+      }, 0);
+    } catch (error) {
+      console.error("Error fetching total population:", error);
+      return 660000;
+    }
+  },
+  getTotalArea: async () => {
+    try {
+      const villages = await Village.find().select("LandArea");
+      console.log();
+      return villages.reduce((sum, village) => sum + village.LandArea, 0);
+    } catch (error) {
+      console.error("Error fetching total LandArea:", error);
+      return 11.88;
+    }
+  },
+  getAllLocations: async () => {
+    try {
+      const villages = await Village.find().select("location -_id");
+      return villages.map((village) => village.location);
+    } catch (error) {
+      console.error("Error fetching locations:", error);
+      return [
+        [31.528205, 34.483131],
+        [31.549669, 34.502813],
+        [31.776209, 35.235622],
+        [31.50043, 34.478241],
+        [31.529621, 35.097351],
+        [32.22112, 35.26077],
+        [31.904931, 35.204428],
+        [31.716214, 35.187664],
+      ];
+    }
   },
 };
 
