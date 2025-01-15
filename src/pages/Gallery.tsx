@@ -106,7 +106,7 @@ const Dashboard: React.FC = () => {
         <button
           id="addImageBtn"
           onClick={addImage}
-          className="add-image-btn bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-5"
+          className="add-image-btn bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 mb-5"
         >
           Add New Image
         </button>
@@ -120,11 +120,19 @@ const Dashboard: React.FC = () => {
               {/* Image URL input */}
               <div>
                 <label className="block text-sm mb-2 text-[#4a4a4a]">
+
+            <div className="modal-content bg-gray-700  p-6 rounded shadow-lg w-96">
+              <h2 className="text-xl mb-4 text-white ">Add New Image</h2>
+
+              {/* Image URL input */}
+              <div>
+                <label className="block text-sm mb-2 text-white ">
                   Image URL
                 </label>
                 <input
                   type="text"
                   className="w-full p-2 border border-gray-300 rounded mb-4 text-black"
+                  className="w-full p-2 border border-gray-300 rounded mb-4  text-black"
                   value={newImage.src}
                   onChange={(e) =>
                     setNewImage({ ...newImage, src: e.target.value })
@@ -135,6 +143,7 @@ const Dashboard: React.FC = () => {
               {/* Description input */}
               <div>
                 <label className="block text-sm mb-2 text-[#4a4a4a]">
+                <label className="block text-sm mb-2 text-white ">
                   Description
                 </label>
                 <input
@@ -150,6 +159,7 @@ const Dashboard: React.FC = () => {
               {/* Image Name input */}
               <div>
                 <label className="block text-sm mb-2 text-[#4a4a4a]">
+                <label className="block text-sm mb-2 text-white ">
                   Image Name
                 </label>
                 <input

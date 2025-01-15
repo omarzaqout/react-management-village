@@ -10,6 +10,8 @@ const User = require("./models/user.js");
 const Village = require("./models/village.js");
 const Message = require("./models/message.js");
 const Image = require("./models/image.js");
+const Image = require("./models/Image.js");
+
 // Connect to MongoDB
 mongoose
   .connect("mongodb://localhost:27017/village", {
@@ -47,12 +49,17 @@ const schema = buildSchema(`
     getTotalPopulation: Int
     getTotalArea: Float
     getAllLocations: [[Float]]
+    getImages: [Image] 
+
 
 
   }
 
   type Mutation {
     addImageWithLink(link: String!, description: String!, name: String!): String
+
+      addImageWithLink(link: String!, description: String!, name: String!): String
+  addImage(name: String!, description: String!, image: String!): Image
     addMessage(sender: String!, text: String!, adminName: String!): Message
     userAdd(fullname: String!, username: String!, password: String!, email: String!, role: String): String
     sendMessage(senderUsername: String!, receiverUsername: String!, message: String!): String
@@ -90,6 +97,13 @@ const schema = buildSchema(`
     ): Village
 
 
+  }
+
+   type Image {
+    id: ID!
+    src: String!
+    description: String!
+    name: String!
   }
 
   type ChatMessage {
@@ -154,10 +168,25 @@ const schema = buildSchema(`
     population:Int
   }
 
+
 `);
 
 // Root resolver
 const root = {
+  addImage: async ({ name, description, imageUrl }) => {
+    const newImage = new Image({
+      name,
+      description,
+      imageUrl
+    });
+    try {
+      await newImage.save();
+      return newImage;
+    } catch (error) {
+      console.error("Error adding image:", error);
+      throw new Error("Failed to add image");
+    }
+  },
   addMessage: async ({ sender, text, adminName }) => {
     const newMessage = new Message({ sender, text, adminName });
     try {
@@ -549,6 +578,15 @@ const root = {
         [31.716214, 35.187664],
       ];
     }
+  },
+  addImageWithLink: async ({ link, description, name }) => {
+    const newImage = new Image({ src: link, description, name });
+    await newImage.save();
+    return "Image added successfully!";
+  },
+  getImages: async () => {
+    const images = await Image.find();  // جلب الصور من قاعدة البيانات
+    return images;
   },
 };
 

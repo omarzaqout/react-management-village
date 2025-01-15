@@ -23,6 +23,9 @@ const VillageManagement: React.FC = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [popupTitle, setPopupTitle] = useState("");
   const [selectedVillageId, setSelectedVillageId] = useState<number>();
+  const [filteredVillages, setFilteredVillages] = useState<Village[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>(""); 
+  const [sortOption, setSortOption] = useState<string>("Default"); 
 
   const [popupInputs, setPopupInputs] = useState<
     {
@@ -51,6 +54,8 @@ const VillageManagement: React.FC = () => {
         });
         const data = await response.json();
         setVillages(data.data.getVillages);
+        setFilteredVillages(data.data.getVillages); 
+
       } catch (error) {
         console.error("Error fetching villages:", error);
       }
@@ -64,6 +69,24 @@ const VillageManagement: React.FC = () => {
     }
   }, [selectedVillageId]); 
 
+   useEffect(() => {
+    let filtered = villages.filter((village) =>
+      village.VillageName.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    if (sortOption === "Name") {
+      filtered = filtered.sort((a, b) =>
+        a.VillageName.toString().localeCompare(b.VillageName.toString())
+      );
+    } else if (sortOption === "Region") {
+      filtered = filtered.sort((a, b) =>
+        a.RegionDistrict.toString().localeCompare(b.RegionDistrict.toString())
+      );
+    }
+
+    setFilteredVillages(filtered);
+  }, [searchTerm, sortOption, villages]);
+  
   const handlePopup = (action: string, villageId?: number) => {
     setSelectedVillageId(villageId);
     setIsPopupOpen(true);
@@ -312,6 +335,31 @@ const VillageManagement: React.FC = () => {
         console.error("Error saving demographic data:", error);
       }
     }
+    if (popupTitle === "Delete Village" && villageId) {
+      const Delete_VILLAGE = `mutation {
+        deleteVillage(id: "${villageId}") {
+          id
+          VillageName
+        }
+      }`;
+    
+      try {
+        const response = await fetch("http://localhost:5000/graphql", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ query: Delete_VILLAGE }),
+        });
+    
+        const data = await response.json();
+        console.log("Village deleted:", data);
+      } catch (error) {
+        console.error("Error deleting village:", error);
+      }
+    }
+    
+  
   };
   
   
@@ -335,11 +383,30 @@ const VillageManagement: React.FC = () => {
           <input
             type="text"
             placeholder="Search villages..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)} 
             className="p-3 bg-gray-700 border border-gray-600 rounded-md text-sm w-full"
           />
         </div>
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
+          <div className="flex items-center w-full sm:w-auto">
+            <label htmlFor="select" className="mr-2 text-sm text-white">
+              Sort by:
+            </label>
+            <select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)} // تحديث خيار الفرز
+              className="p-3 bg-gray-700 border border-gray-600 rounded-md text-sm w-full sm:w-auto"
+              id="select"
+            >
+              <option value="Default">Default</option>
+              <option value="Name">Name</option>
+              <option value="Region">Region</option>
+            </select>
+          </div>
+        </div>
         <div className="grid grid-cols-1 gap-4">
-          {villages.map((village) => (
+        {filteredVillages.map((village) => (
             <VillageItem
               id={village.id}
               key={village.VillageName}
